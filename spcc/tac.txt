@@ -1,0 +1,4 @@
+t = a + v
+d = b - c
+x = t + d
+y = x - a
