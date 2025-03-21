@@ -1,139 +1,317 @@
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
-
-class TACInstruction {
-  String result, operand1, operator, operand2;
-
-  public TACInstruction(String result, String operand1, String operator, String operand2) {
-    this.result = result;
-    this.operand1 = operand1;
-    this.operator = operator;
-    this.operand2 = operand2;
-  }
-
-  @Override
-  public String toString() {
-    return result + " = " + operand1 + " " + operator + " " + operand2;
-  }
-
-  public String toRHSString() {
-    return operand1 + " " + operator + " " + operand2;
-  }
-}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Stack;
 
 public class ThreeAddressCodeGenerator {
-  private static final int MAX_REGISTERS = 4;
-  private static LinkedHashMap<String, String> registerMap = new LinkedHashMap<>(MAX_REGISTERS, 0.75f, true);
-  private static Queue<String> availableRegisters = new LinkedList<>(Arrays.asList("R1", "R2", "R3", "R4"));
-  private static Map<String, String> memoryMap = new HashMap<>();
-  private static int memoryCounter = 0;
+    private static int tempCount = 1;
+    private static Scanner scanner = new Scanner(System.in);
 
-  public static void main(String[] args) {
-    if (args.length < 1) {
-      System.out.println("Usage: java ThreeAddressCodeGenerator <filename>");
-      return;
+    public static void main(String[] args) {
+        while (true) {
+            displayMenu();
+            String choice = scanner.nextLine();
+            
+            switch (choice) {
+                case "1":
+                    generateAssignmentCode();
+                    break;
+                case "2":
+                    generateConditionalCode();
+                    break;
+                case "3":
+                    generateWhileCode();
+                    break;
+                case "4":
+                    System.out.print("Enter expression (e.g., a = b + c * d): ");
+                    String customExpression = scanner.nextLine();
+                    if (customExpression.contains("=")) {
+                        generateThreeAddressCode(customExpression);
+                    } else {
+                        System.out.println("Invalid expression format. Please use the format: a = b + c * d");
+                    }
+                    break;
+                case "5":
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please enter a number from 1 to 5.");
+            }
+            
+            System.out.println("\nPress Enter to continue...");
+            scanner.nextLine();
+        }
+    }
+    
+    private static void displayMenu() {
+        System.out.println("\nThree-Address Code Generator");
+        System.out.println("---------------------------");
+        System.out.println("1. Generate code for assignment statement");
+        System.out.println("2. Generate code for conditional statement");
+        System.out.println("3. Generate code for while statement");
+        System.out.println("4. Generate code for custom expression");
+        System.out.println("5. Exit");
+        System.out.print("Enter your choice: ");
     }
 
-    String filename = args[0];
-    String code = readFile(filename);
-    if (code == null)
-      return;
-
-    List<TACInstruction> instructions = parseCode(code);
-    generateAssembly(instructions);
-  }
-
-  public static String readFile(String filename) {
-    StringBuilder content = new StringBuilder();
-    try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        content.append(line).append("\n");
-      }
-    } catch (IOException e) {
-      System.out.println("Error reading file: " + e.getMessage());
-      return null;
-    }
-    return content.toString();
-  }
-
-  public static List<TACInstruction> parseCode(String code) {
-    List<TACInstruction> instructions = new ArrayList<>();
-    String[] lines = code.strip().split("\\n");
-    Pattern pattern = Pattern.compile("(\\w+)\\s*=\\s*(\\w+)\\s*([+-/*])\\s*(\\w+)");
-
-    for (String line : lines) {
-      Matcher matcher = pattern.matcher(line);
-      if (matcher.matches()) {
-        instructions.add(new TACInstruction(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4)));
-      } else {
-        System.out.println("Invalid syntax: " + line);
-      }
-    }
-    return instructions;
-  }
-
-  public static void generateAssembly(List<TACInstruction> instructions) {
-    System.out.println("\nGenerated Assembly Code:");
-    for (TACInstruction instruction : instructions) {
-      String reg1 = loadOperand(instruction.operand1);
-      String reg2 = loadOperand(instruction.operand2);
-
-      System.out.println(instruction.operand1 + "\t\tMOV " + reg1 + ", " + instruction.operand1);
-      System.out.println(instruction.operand2 + "\t\tMOV " + reg2 + ", " + instruction.operand2);
-
-      if (instruction.operator.equals("+")) {
-        System.out.println(instruction.toRHSString() + "\t\tADD " + reg1 + ", " + reg2);
-      } else if (instruction.operator.equals("-")) {
-        System.out.println(instruction.toRHSString() + "\t\tSUB " + reg1 + ", " + reg2);
-      } else if (instruction.operator.equals("*")) {
-        System.out.println(instruction.toRHSString() + "\t\tMUL " + reg1 + ", " + reg2);
-      } else if (instruction.operator.equals("/")) {
-        System.out.println(instruction.toRHSString() + "\t\tDIV " + reg1 + ", " + reg2);
-      }
-
-      String resReg = allocateRegister(instruction.result);
-      System.out.println(instruction.toString() + "\t\tMOV " + resReg + ", " + reg1);
-    }
-  }
-
-  private static String allocateRegister(String variable) {
-    if (registerMap.containsKey(variable)) {
-      return registerMap.get(variable);
+    private static void generateAssignmentCode() {
+        System.out.println("Assignment Statement Example: a = b + c * d");
+        String expression = "a = b + c * d";
+        generateThreeAddressCode(expression);
     }
 
-    if (!availableRegisters.isEmpty()) {
-      String reg = availableRegisters.poll();
-      registerMap.put(variable, reg);
-      return reg;
+    private static void generateConditionalCode() {
+        System.out.print("Enter conditional statement (e.g., if (a < b) then c = d + e else c = d - e): ");
+        String expression = scanner.nextLine();
+        
+        // Default to example if empty
+        if (expression.trim().isEmpty()) {
+            expression = "if (a < b) then c = d + e else c = d - e";
+            System.out.println("Using example: " + expression);
+        }
+        
+        try {
+            // Extract condition
+            int thenIndex = expression.indexOf(" then ");
+            if (thenIndex == -1) throw new IllegalArgumentException("Missing 'then' keyword");
+            
+            String condition = expression.substring(expression.indexOf("(") + 1, expression.indexOf(")")).trim();
+            
+            // Extract then and else parts
+            int elseIndex = expression.indexOf(" else ");
+            if (elseIndex == -1) throw new IllegalArgumentException("Missing 'else' keyword");
+            
+            String thenPart = expression.substring(thenIndex + 6, elseIndex).trim();
+            String elsePart = expression.substring(elseIndex + 6).trim();
+            
+            // Generate labels
+            String trueLabel = "L" + tempCount++;
+            String falseLabel = "L" + tempCount++;
+            String endLabel = "L" + tempCount++;
+            
+            // Generate code
+            StringBuilder code = new StringBuilder();
+            code.append("if ").append(condition).append(" goto ").append(trueLabel).append(";\n");
+            
+            // Process the else part (may need complex expression handling)
+            if (elsePart.contains("=")) {
+                List<String> elseCode = parseAndGenerateThreeAddressCode(elsePart);
+                for (String line : elseCode) {
+                    code.append(line).append("\n");
+                }
+            } else {
+                code.append(elsePart).append(";\n");
+            }
+            
+            code.append("goto ").append(endLabel).append(";\n");
+            code.append(trueLabel).append(": ");
+            
+            // Process the then part (may need complex expression handling)
+            if (thenPart.contains("=")) {
+                List<String> thenCode = parseAndGenerateThreeAddressCode(thenPart);
+                for (String line : thenCode) {
+                    code.append(line).append("\n");
+                }
+            } else {
+                code.append(thenPart).append(";\n");
+            }
+            
+            code.append(endLabel).append(": ");
+            
+            System.out.println("\nThree-address code:");
+            System.out.println(code.toString());
+        } catch (Exception e) {
+            System.out.println("Error parsing conditional statement: " + e.getMessage());
+            System.out.println("Please use the format: if (condition) then statement else statement");
+        }
     }
 
-    // Spill least recently used variable
-    Iterator<String> iterator = registerMap.keySet().iterator();
-    if (iterator.hasNext()) {
-      String lruVar = iterator.next();
-      String freedReg = registerMap.remove(lruVar);
-      String memoryLocation = "MEM" + (memoryCounter++);
-      memoryMap.put(lruVar, memoryLocation);
-      // actually it is just mov but using store for better clarity
-      System.out.println(lruVar + "\t\tSTORE " + freedReg + ", " + memoryLocation);
-      registerMap.put(variable, freedReg);
-      return freedReg;
+    private static void generateWhileCode() {
+        System.out.print("Enter while statement (e.g., while (a < b) do c = c + d): ");
+        String expression = scanner.nextLine();
+        
+        // Default to example if empty
+        if (expression.trim().isEmpty()) {
+            expression = "while (a < b) do c = c + d";
+            System.out.println("Using example: " + expression);
+        }
+        
+        try {
+            // Extract condition and body
+            int doIndex = expression.indexOf(" do ");
+            if (doIndex == -1) throw new IllegalArgumentException("Missing 'do' keyword");
+            
+            String condition = expression.substring(expression.indexOf("(") + 1, expression.indexOf(")")).trim();
+            String body = expression.substring(doIndex + 4).trim();
+            
+            // Generate labels
+            String loopStartLabel = "L" + tempCount++;
+            String loopBodyLabel = "L" + tempCount++;
+            String loopEndLabel = "L" + tempCount++;
+            
+            // Generate code with proper control flow
+            StringBuilder code = new StringBuilder();
+            code.append(loopStartLabel).append(": if ").append(condition).append(" goto ").append(loopBodyLabel).append(";\n");
+            code.append("goto ").append(loopEndLabel).append(";\n");
+            code.append(loopBodyLabel).append(": ");
+            
+            // Process the body (may need complex expression handling)
+            if (body.contains("=")) {
+                List<String> bodyCode = parseAndGenerateThreeAddressCode(body);
+                for (String line : bodyCode) {
+                    code.append(line).append("\n");
+                }
+            } else {
+                code.append(body).append(";\n");
+            }
+            
+            code.append("goto ").append(loopStartLabel).append(";\n");
+            code.append(loopEndLabel).append(": ");
+            
+            System.out.println("\nThree-address code:");
+            System.out.println(code.toString());
+        } catch (Exception e) {
+            System.out.println("Error parsing while statement: " + e.getMessage());
+            System.out.println("Please use the format: while (condition) do statement");
+        }
     }
-    return "";
-  }
 
-  private static String loadOperand(String operand) {
-    if (registerMap.containsKey(operand)) {
-      return registerMap.get(operand);
+    private static void generateThreeAddressCode(String expression) {
+        List<String> code = parseAndGenerateThreeAddressCode(expression);
+        
+        System.out.println("\nThree-address code:");
+        for (String line : code) {
+            System.out.println(line);
+        }
     }
-    if (memoryMap.containsKey(operand)) {
-      String reg = allocateRegister(operand);
-      System.out.println(operand + "\t\tLOAD " + reg + ", " + memoryMap.get(operand));
-      memoryMap.remove(operand);
-      return reg;
+    
+    private static List<String> parseAndGenerateThreeAddressCode(String expression) {
+        List<String> code = new ArrayList<>();
+        
+        try {
+            String[] parts = expression.split("=");
+            if (parts.length != 2) throw new IllegalArgumentException("Invalid assignment expression");
+            
+            String lhs = parts[0].trim();
+            String rhs = parts[1].trim();
+            
+            // Use shunting yard algorithm to handle operator precedence correctly
+            List<String> postfix = convertToPostfix(rhs);
+            String result = evaluatePostfix(postfix, code);
+            
+            // Add final assignment
+            code.add(lhs + " = " + result + ";");
+            
+        } catch (Exception e) {
+            System.out.println("Error parsing expression: " + e.getMessage());
+            System.out.println("Please use the format: a = b + c * d");
+        }
+        
+        return code;
     }
-    return allocateRegister(operand);
-  }
+    
+    // Convert infix expression to postfix using Shunting Yard algorithm
+    private static List<String> convertToPostfix(String infix) {
+        List<String> postfix = new ArrayList<>();
+        Stack<Character> operators = new Stack<>();
+        
+        // Tokenize the infix expression
+        StringBuilder tokenBuilder = new StringBuilder();
+        List<String> tokens = new ArrayList<>();
+        
+        for (int i = 0; i < infix.length(); i++) {
+            char c = infix.charAt(i);
+            
+            if (Character.isLetterOrDigit(c)) {
+                tokenBuilder.append(c);
+            } else if (c == '+' || c == '-' || c == '*' || c == '/') {
+                if (tokenBuilder.length() > 0) {
+                    tokens.add(tokenBuilder.toString());
+                    tokenBuilder = new StringBuilder();
+                }
+                tokens.add(String.valueOf(c));
+            } else if (c == '(' || c == ')') {
+                if (tokenBuilder.length() > 0) {
+                    tokens.add(tokenBuilder.toString());
+                    tokenBuilder = new StringBuilder();
+                }
+                tokens.add(String.valueOf(c));
+            } else if (!Character.isWhitespace(c)) {
+                tokenBuilder.append(c);
+            } else if (tokenBuilder.length() > 0) {
+                tokens.add(tokenBuilder.toString());
+                tokenBuilder = new StringBuilder();
+            }
+        }
+        
+        if (tokenBuilder.length() > 0) {
+            tokens.add(tokenBuilder.toString());
+        }
+        
+        // Apply shunting yard algorithm
+        for (String token : tokens) {
+            if (token.length() == 1) {
+                char c = token.charAt(0);
+                
+                if (c == '(') {
+                    operators.push(c);
+                } else if (c == ')') {
+                    while (!operators.isEmpty() && operators.peek() != '(') {
+                        postfix.add(String.valueOf(operators.pop()));
+                    }
+                    if (!operators.isEmpty()) operators.pop(); // Discard the '('
+                } else if (c == '+' || c == '-' || c == '*' || c == '/') {
+                    while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(c)) {
+                        postfix.add(String.valueOf(operators.pop()));
+                    }
+                    operators.push(c);
+                } else {
+                    postfix.add(token);
+                }
+            } else {
+                postfix.add(token);
+            }
+        }
+        
+        while (!operators.isEmpty()) {
+            postfix.add(String.valueOf(operators.pop()));
+        }
+        
+        return postfix;
+    }
+    
+    // Evaluate postfix expression and generate three-address code
+    private static String evaluatePostfix(List<String> postfix, List<String> code) {
+        Stack<String> operands = new Stack<>();
+        
+        for (String token : postfix) {
+            if (token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/")) {
+                String operand2 = operands.pop();
+                String operand1 = operands.pop();
+                String temp = "t" + tempCount++;
+                
+                code.add(temp + " = " + operand1 + " " + token + " " + operand2 + ";");
+                operands.push(temp);
+            } else {
+                operands.push(token);
+            }
+        }
+        
+        return operands.isEmpty() ? "" : operands.pop();
+    }
+    
+    // Helper method to determine operator precedence
+    private static int precedence(char op) {
+        switch (op) {
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+            default:
+                return 0;
+        }
+    }
 }

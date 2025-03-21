@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivian Ludrick - Resume</title>
+    <style>
+        :root {
+            --primary-color: #2a6496;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dee2e6;
+            --heading-color: #1a4971;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: var(--text-color);
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+        
+        .resume-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .name {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            color: var(--heading-color);
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+        
+        .career-objective {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        
+        .skills-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .skill-category {
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        
+        .education-item, .project-item, .achievement-item, .training-item {
+            margin-bottom: 15px;
+        }
+        
+        .education-header, .project-title, .achievement-title {
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+        
+        .education-details, .project-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .project-description {
+            list-style-position: inside;
+            padding-left: 5px;
+        }
+        
+        .project-description li {
+            margin-bottom: 5px;
+        }
+        
+        .achievements-list {
+            list-style: none;
+        }
+        
+        .achievements-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .achievements-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .training-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .contact-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .education-details, .training-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-header">
+        <h1 class="name">VIVIAN LUDRICK</h1>
+        <p class="subtitle">Third Year, Computer Engineering</p>
+        <div class="contact-info">
+            <div class="contact-item">
+                <span>Mail:</span>
+                <a href="mailto:vivianludrick.main@gmail.com">vivianludrick.main@gmail.com</a>
+            </div>
+            <div class="contact-item">
+                <span>Mobile:</span>
+                <a href="tel:+918983514765">+91 8983514765</a>
+            </div>
+            <div class="contact-item">
+                <span>Github:</span>
+                <a href="https://github.com/vivalchemy" target="_blank">@vivalchemy</a>
+            </div>
+            <div class="contact-item">
+                <span>LinkedIn:</span>
+                <a href="https://linkedin.com/in/vivalchemy" target="_blank">@vivalchemy</a>
+            </div>
+            <div class="contact-item">
+                <span>Leetcode:</span>
+                <a href="https://leetcode.com/vivalchemy" target="_blank">@vivalchemy</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Career Objective</h2>
+        <p class="career-objective">Aspiring computer engineer with a strong foundation in web development and a passion for creating user-centric applications. Seeking to leverage my skills in modern web technologies, programming, and problem-solving to contribute to innovative projects and the growth of a forward-thinking organisation.</p>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Skills</h2>
+        <div class="skills-container">
+            <p><span class="skill-category">Programming Languages:</span> Javascript, Go (Basic), Bash (Basic), Python (Basic)</p>
+            <p><span class="skill-category">Technologies:</span> Svelte, SvelteKit, React, Tailwind CSS, Typescript, PostgreSQL, Make</p>
+            <p><span class="skill-category">Tools:</span> Git, Github, Docker, Linux, Neovim, tmux</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Education</h2>
+        <div class="education-item">
+            <div class="education-details">
+                <h3 class="education-header">Fr. Conceicao Rodrigues College of Engineering, Bandra</h3>
+                <span>2022 - present</span>
+            </div>
+            <p>BE • Computer Engineering • 8.25 CGPA</p>
+        </div>
+        
+        <div class="education-item">
+            <div class="education-details">
+                <h3 class="education-header">Narayana Junior College, Nalasopara</h3>
+                <span>2022</span>
+            </div>
+            <p>HSC • Passing Percentage: 84.5%</p>
+        </div>
+        
+        <div class="education-item">
+            <div class="education-details">
+                <h3 class="education-header">Holy Cross Convent School, Nanbhat - Nalasopara</h3>
+                <span>2020</span>
+            </div>
+            <p>SSC • Passing Percentage: 93.8%</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Projects</h2>
+        <div class="project-item">
+            <h3 class="project-title">Commerce Genesis</h3>
+            <ul class="project-description">
+                <li>eCommerce platform combining AI with web technologies</li>
+                <li>Built with Next.js/Django and includes Stripe payment processing</li>
+                <li>Features AI recommendations, AR product views, and fake product detection</li>
+                <li>Includes companion Chrome extension</li>
+            </ul>
+        </div>
+        
+        <div class="project-item">
+            <h3 class="project-title">Certificate Butler</h3>
+            <ul class="project-description">
+                <li>Developed using Django for backend and Svelte with Vite for frontend</li>
+                <li>Allows the user to create certificates for their competition in a single batch and generates a zip file containing all the certificates</li>
+                <li>Utilised the Pillow library in Python for image manipulation and Django's inbuilt SQLite database for storing and retrieving certificates</li>
+            </ul>
+        </div>
+        
+        <div class="project-item">
+            <h3 class="project-title">Hyprhaven</h3>
+            <ul class="project-description">
+                <li>A wallpaper downloader and switching bash script designed for Hyprland</li>
+                <li>Uses the Wallhaven API to download the images and the Hyprpaper CLI for setting up the wallpaper</li>
+            </ul>
+        </div>
+        
+        <div class="project-item">
+            <h3 class="project-title">GutFood</h3>
+            <ul class="project-description">
+                <li>Developed a web app to provide food insights from images, including health risks, recipes, and ingredients</li>
+                <li>Utilised React for frontend development and Django for backend implementation</li>
+                <li>Integrated Google Gemini for information retrieval and a chatbot for enhanced user interaction</li>
+                <li>Key features include insights via image analysis, custom ML models for disease prediction, chatbot for additional insights, etc.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Achievements</h2>
+        <ul class="achievements-list">
+            <li>First Place UI Design, Algozenith Unleashed</li>
+            <li>Second Place Competitive Coding, Algoholic 1.0</li>
+            <li>MSCE PSS Scholarship Recipient</li>
+            <li>MSCE PUP Scholarship Recipient</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2 class="section-title">Training</h2>
+        <div class="training-item">
+            <p>WorkForce Member, GDSC club</p>
+            <p>Jan 2023 - Jun 2023</p>
+        </div>
+    </div>
+</body>
+</html>
