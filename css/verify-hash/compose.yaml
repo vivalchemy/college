@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:alpine3.20
+    container_name: postgres-database
+    environment:
+      - POSTGRES_DB=database
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - './postgres-data:/var/lib/postgresql/data'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbuser -d myapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cloudbeaver:
+    image: 'dbeaver/cloudbeaver:latest'
+    container_name: cloudbeaver
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - '8978:8978'
+    network_mode: host
+    volumes:
+      - './cloud-beaver-data:/opt/cloudbeaver/workspace'
