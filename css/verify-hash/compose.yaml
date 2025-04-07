@@ -1,30 +1,57 @@
 services:
-  postgres:
-    image: postgres:alpine3.20
+  frontend:
+    build: frontend/
+    container_name: verify-hash-frontend
+    ports:
+      - '80:80'
+    networks: 
+      - verify-hash-private-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    build: backend/
+    container_name: verify-hash-backend
+    ports:
+      - '3000:3000'
+    networks: 
+      - verify-hash-private-network
+    depends_on:
+      - db
+    restart: unless-stopped
+      
+  db:
+    image: postgres:alpine
     container_name: postgres-database
     environment:
       - POSTGRES_DB=database
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
-    ports:
-      - "5432:5432"
+    networks: 
+      - verify-hash-private-network
     volumes:
       - './postgres-data:/var/lib/postgresql/data'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dbuser -d myapp"]
+      test: ["CMD-SHELL", "pg_isready -U username -d myapp"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  cloudbeaver:
+  db-ui:
     image: 'dbeaver/cloudbeaver:latest'
     container_name: cloudbeaver
     depends_on:
-      - postgres
-    restart: always
+      - db
     ports:
       - '8978:8978'
-    network_mode: host
+    restart: unless-stopped
+    networks: 
+      - verify-hash-private-network
     volumes:
       - './cloud-beaver-data:/opt/cloudbeaver/workspace'
+
+networks:
+  verify-hash-private-network:
+    driver: bridge

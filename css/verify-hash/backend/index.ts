@@ -28,7 +28,7 @@ interface DbConfig {
 }
 
 const dbConfig: DbConfig = {
-  host: process.env.POSTGRES_HOST || 'localhost',
+  host: process.env.POSTGRES_HOST || 'db', // since using docker networks, else localhost
   database: process.env.POSTGRES_DB || 'database',
   user: process.env.POSTGRES_USER || 'username',
   password: process.env.POSTGRES_PASSWORD || 'password',
