@@ -5,6 +5,6 @@ RUN bun install
 COPY . .
 RUN bun run build
 
-FROM nginx:latest
+FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
