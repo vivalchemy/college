@@ -57,8 +57,8 @@ public class RSAServer {
                   System.out.println("\nInvalid signature!");
                   continue;
                 }
-                System.out.println("\nClient: " + decryptedMessage);
-                System.out.print("You: ");
+                System.out.println("\n\033[0;34mClient: " + decryptedMessage);
+                System.out.print("\033[0;32mYou: ");
               } catch (Exception e) {
                 System.out.println("\nError decrypting message: " + e.getMessage());
               }
@@ -74,7 +74,7 @@ public class RSAServer {
         System.out.println("Start typing messages (type 'exit' to quit):");
         String message;
         while (true) {
-          System.out.print("You: ");
+          System.out.print("\033[0;32mYou: ");
           message = scanner.nextLine();
 
           if ("exit".equalsIgnoreCase(message)) {
