@@ -38,10 +38,25 @@ public class RSAServer {
         // Start a thread to handle incoming messages
         Thread receiveThread = new Thread(() -> {
           try {
+            String encryptedMessageAndSignature;
             String encryptedMessage;
-            while ((encryptedMessage = in.readLine()) != null) {
+            String signature;
+            while ((encryptedMessageAndSignature = in.readLine()) != null) {
               try {
+                String[] parts = encryptedMessageAndSignature.split(" Signature:", 2);
+                if (parts.length == 2) {
+                  encryptedMessage = parts[0];
+                  signature = parts[1];
+                } else {
+                  // Handle the error properly
+                  throw new IllegalArgumentException("Invalid format: ' Signature:' delimiter not found");
+                }
                 String decryptedMessage = RSA.decrypt(encryptedMessage, serverPrivateKey);
+                Boolean isValid = RSA.verify(MD5.getMD5Hash(decryptedMessage), signature, clientPublicKey);
+                if (!isValid) {
+                  System.out.println("\nInvalid signature!");
+                  continue;
+                }
                 System.out.println("\nClient: " + decryptedMessage);
                 System.out.print("You: ");
               } catch (Exception e) {
@@ -69,7 +84,9 @@ public class RSAServer {
 
           try {
             String encryptedMessage = RSA.encrypt(message, clientPublicKey);
-            out.println(encryptedMessage);
+            String hash = MD5.getMD5Hash(message);
+            String signature = RSA.sign(hash, serverPrivateKey);
+            out.println(encryptedMessage + " Signature:" + signature);
           } catch (Exception e) {
             System.out.println("Error encrypting message: " + e.getMessage());
           }

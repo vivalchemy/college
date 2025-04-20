@@ -35,10 +35,25 @@ public class RSAClient {
       // Start a thread to handle incoming messages
       Thread receiveThread = new Thread(() -> {
         try {
+          String encryptedMessageAndSignature;
           String encryptedMessage;
-          while ((encryptedMessage = in.readLine()) != null) {
+          String signature;
+          while ((encryptedMessageAndSignature = in.readLine()) != null) {
             try {
+              String[] parts = encryptedMessageAndSignature.split(" Signature:", 2);
+              if (parts.length == 2) {
+                encryptedMessage = parts[0];
+                signature = parts[1];
+              } else {
+                // Handle the error properly
+                throw new IllegalArgumentException("Invalid format: ' Signature:' delimiter not found");
+              }
               String decryptedMessage = RSA.decrypt(encryptedMessage, clientPrivateKey);
+              Boolean isValid = RSA.verify(MD5.getMD5Hash(decryptedMessage), signature, serverPublicKey);
+              if (!isValid) {
+                System.out.println("\nInvalid signature!");
+                continue;
+              }
               System.out.println("\nServer: " + decryptedMessage);
               System.out.print("You: ");
             } catch (Exception e) {
@@ -46,6 +61,7 @@ public class RSAClient {
             }
           }
           System.out.println("\nServer disconnected.");
+          System.exit(1);
         } catch (IOException e) {
           System.out.println("\nConnection lost: " + e.getMessage());
         }
@@ -66,7 +82,9 @@ public class RSAClient {
 
         try {
           String encryptedMessage = RSA.encrypt(message, serverPublicKey);
-          out.println(encryptedMessage);
+          String hash = MD5.getMD5Hash(message);
+          String signature = RSA.sign(hash, clientPrivateKey);
+          out.println(encryptedMessage + " Signature:" + signature);
         } catch (Exception e) {
           System.out.println("Error encrypting message: " + e.getMessage());
         }
