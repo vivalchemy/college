@@ -1,0 +1,1 @@
+This is the secret text that will be encrypted by IMAP protocol
