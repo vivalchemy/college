@@ -1,9 +1,6 @@
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 class MNT {
   List<MNTLine> lines;
@@ -30,33 +27,38 @@ class Macro {
   HashMap<String, Integer> ALA;
 
   public Macro() {
-    this.lines = new ArrayList<>(); // Initialize lines as an ArrayList
+    this.lines = new ArrayList<>();
     this.ALA = new HashMap<>();
   }
 
   public String parseMacroDefinition(String macroDefinition) {
     macroDefinition = macroDefinition.trim();
-
-    // Split the line into tokens by space first
-    String[] parts = macroDefinition.split("\\s+", 3); // At most 3 parts: [label?, name, args]
-    this.ALA.put(parts[0], 0); // put the label if it exists
-    int index = 1; // if the label exists then make the index 1 else it will be 0
-    this.parseArgs(parts[2], index);
-    return parts[1];
+    String[] tokens = macroDefinition.split("\\s+", 2); // SWAP &X, &Y
+    String macroName = tokens[0];
+    if (tokens.length > 1) {
+      parseArgs(tokens[1], 0);
+    }
+    return macroName;
   }
 
-  private HashMap<String, Integer> parseArgs(String argString, int index) {
-    HashMap<String, Integer> argMap = new HashMap<>();
-
+  private void parseArgs(String argString, int index) {
     String[] args = argString.split(",");
     for (int i = 0; i < args.length; i++) {
       String arg = args[i].trim();
       if (!arg.isEmpty()) {
-        ALA.put(arg, i + index - 1);
+        ALA.put(arg, i + index);
       }
     }
+  }
 
-    return argMap;
+  public void substituteArgsInBody() {
+    for (int i = 0; i < lines.size(); i++) {
+      String line = lines.get(i).line;
+      for (Map.Entry<String, Integer> entry : ALA.entrySet()) {
+        line = line.replace(entry.getKey(), "#{" + entry.getValue() + "}");
+      }
+      lines.set(i, new Line(line, lines.get(i).index));
+    }
   }
 }
 
@@ -79,6 +81,7 @@ public class MacroFirstPass {
       for (String line : lines) {
         System.out.println(line);
       }
+      System.out.println("=========================================");
       return lines;
     } catch (IOException e) {
       e.printStackTrace();
@@ -88,25 +91,28 @@ public class MacroFirstPass {
   }
 
   public static List<Macro> getMacros(List<String> lines) {
-    List<Macro> macros = new ArrayList<Macro>();
+    List<Macro> macros = new ArrayList<>();
     MNT mnt = new MNT();
     for (int i = 0; i < lines.size(); i++) {
-
-      if (!lines.get(i).contains("MACRO")) {
+      if (!lines.get(i).contains("MACRO"))
         continue;
-      }
-
-      // parse the first line to get the ala
 
       int j = i + 1;
-      System.out.println("Starting the collection of macro");
+      // Skip empty lines
+      while (j < lines.size() && lines.get(j).trim().isEmpty()) {
+        j++;
+      }
+
       Macro macro = new Macro();
       String macroName = macro.parseMacroDefinition(lines.get(j));
 
       mnt.lines.add(new MNTLine(mnt.lines.size(), j, macroName));
-      for (j = i + 1; j < lines.size(); j++) {
-        macro.lines.add(new Line(lines.get(j), j));
-        if (lines.get(j).contains("MEND")) {
+
+      for (j = j; j < lines.size(); j++) {
+        String line = lines.get(j).trim();
+        macro.lines.add(new Line(line, j));
+        if (line.contains("MEND")) {
+          macro.substituteArgsInBody(); // substitute args with #{index}
           macros.add(macro);
           break;
         }
@@ -114,7 +120,7 @@ public class MacroFirstPass {
       i = j;
     }
 
-    if (macros.size() < 1) {
+    if (macros.isEmpty()) {
       System.out.println("No macros definitions were found in the code");
     }
 
@@ -123,31 +129,29 @@ public class MacroFirstPass {
   }
 
   public static void printMNT(MNT mnt) {
-    System.out.println("\n");
-    System.out.println("Printing MNT");
+    System.out.println("\nPrinting MNT");
     System.out.println("Index\t|\tLocation\t|\tMacro Name");
     for (MNTLine line : mnt.lines) {
       System.out.println(line.indexOfMacro + "\t|\t" + line.locationOfMacro + "\t\t|\t" + line.nameOfMacro);
     }
-    System.out.println("\n");
+    System.out.println("=========================================");
   }
 
   public static void printMDT(List<Macro> MDT) {
     for (Macro macro : MDT) {
-      System.out.println("Started printing the new macro");
-      System.out.println("index\t|\t Definition");
+      System.out.println("\nNew macro");
+      System.out.println("index\t|\tDefinition");
       for (Line line : macro.lines) {
         System.out.println(line.index + "\t|\t" + line.line);
       }
-      System.out.println("\n");
+      System.out.println("=========================================");
       printALA(macro.ALA);
-      System.out.println("\n");
     }
   }
 
   public static void printALA(HashMap<String, Integer> ala) {
-    System.out.println("Printing ala");
-    System.out.println(ala);
+    System.out.println("ALA: " + ala);
+    System.out.println("=========================================");
   }
 
   public static void main(String[] args) {
@@ -157,10 +161,7 @@ public class MacroFirstPass {
     }
 
     List<String> lines = readFile(args[0]);
-
     List<Macro> MDT = getMacros(lines);
     printMDT(MDT);
-
   }
-
 }

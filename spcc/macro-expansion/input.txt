@@ -1,14 +1,13 @@
 MACRO
-Loop_1 INCR &a1, &a2, &a3
-            A1, &a1
-            A2, &a2
-            A3, &a3
-MEND 
+SWAP &X, &Y
+LD TEMP, &X
+LD &X, &Y
+LD &Y, TEMP
 
-
-MACRO
-Loop_1 INCR &a1, &a2, &a3
-            A1, &a1
-            A2, &a2
-            A3, &a3
-MEND 
+MEND
+start
+ADD A
+Load B
+SWAP z1, z2
+ADD C
+end
