@@ -6,7 +6,7 @@
 #let subjectName = "Systems Programming And Compiler Construction"
 #let subjectCode = "CPC 601"
 
-#let practicalNo = "6"
+#let practicalNo = "8"
 #let title = "Macro Processor"
 #let dateOfPerformance = "15/04/2025"
 #let dateOfSubmission = "23/04/2025"
@@ -117,3 +117,8 @@
   height: 60%
 )
 #image("./23Apr25_21h58m41s.png")
+
+#pagebreak()
+
+== POSTLAB:
+#image("./postlab.jpg")
